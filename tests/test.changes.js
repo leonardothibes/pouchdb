@@ -1094,3 +1094,20 @@ describe('changes', function () {
     });
   });
 });
+asyncTest("cancel changes since latest", 1, function (){
+  testUtils.initTestDB(this.name, function (err, db) {
+    var x;
+    function onChange(c) {
+        ok(c);
+        x.cancel();
+        db.post( { should_trigger_change: false });
+        setTimeout(function(){
+          start();
+        },0);
+    }
+
+    x = db.changes({ since: 'latest', continuous: true, include_docs: true, onChange: onChange });
+
+    db.post({ should_trigger_change: true });
+  });
+});
